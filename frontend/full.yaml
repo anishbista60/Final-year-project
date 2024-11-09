@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      labels:
+        app: chat-app
+    spec:
+      containers:
+        - name: chat-app
+          image: your-docker-image-name:latest  # Use your Docker image here
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              value: "mysql://root:root@mysql-chat-app:3306/chat_app"
+            - name: NEXTAUTH_URL
+              value: "http://localhost:3000/api/auth"
+            - name: NEXTAUTH_SECRET
+              value: "123456"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "nextjs"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: "as231s1St5a43a21Avfts8we1321s"
+            - name: KEYCLOAK_ISSUER
+              value: "http://host.docker.internal:9000/realms/chat-app"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-app
+spec:
+  selector:
+    app: chat-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-chat-app
+  template:
+    metadata:
+      labels:
+        app: mysql-chat-app
+    spec:
+      containers:
+        - name: mysql-chat-app
+          image: mysql:8
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "chat_app"
+            - name: MYSQL_PASSWORD
+              value: "root"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-persistent-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-chat-app
+spec:
+  selector:
+    app: mysql-chat-app
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:21.1
+          command: ["start-dev"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "admin"
+          volumeMounts:
+            - mountPath: /opt/keycloak/data/h2
+              name: keycloak-persistent-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-persistent-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keycloak-persistent-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+

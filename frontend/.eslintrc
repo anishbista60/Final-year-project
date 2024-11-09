@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "@sup3r-us3r/eslint-config/react",
+    "next/core-web-vitals" // Extend Next.js ESLint rules
+  ],
+  "plugins": ["next"], // Add Next.js plugin
+  "rules": {
+    "camelcase": "off",
+    "no-useless-constructor": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "next/no-img-element": "off", // Disable the rule for using <img> elements
+    "@typescript-eslint/no-explicit-any": "off", // Disable the rule for 'any' type
+    "@typescript-eslint/no-unused-vars": "warn" // Change unused vars to warn instead of error
+  }
+}

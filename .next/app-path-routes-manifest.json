@@ -1,0 +1,11 @@
+{
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/api/chats/[chatId]/messages/route": "/api/chats/[chatId]/messages",
+  "/api/generate-token/route": "/api/generate-token",
+  "/api/chats/route": "/api/chats",
+  "/api/logout-url/route": "/api/logout-url",
+  "/api/messages/[messageId]/events/route": "/api/messages/[messageId]/events",
+  "/login/page": "/login",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}
