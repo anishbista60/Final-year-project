@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: chat-app
-          image: your-docker-image-name:latest  # Use your Docker image here
+          image: your-docker-image-name:latest 
           ports:
             - containerPort: 3000
           env:
@@ -25,11 +25,11 @@ spec:
             - name: NEXTAUTH_SECRET
               value: "123456"
             - name: KEYCLOAK_CLIENT_ID
-              value: "nextjs"
+              value: "anish"
             - name: KEYCLOAK_CLIENT_SECRET
-              value: "as231s1St5a43a21Avfts8we1321s"
+              value: "OA558ESfepGNzSreMU01c5PYRdCH1my9"
             - name: KEYCLOAK_ISSUER
-              value: "http://host.docker.internal:9000/realms/chat-app"
+              value: "http://localhost:9000/realms/chat-app"
 ---
 apiVersion: v1
 kind: Service
@@ -85,6 +85,7 @@ spec:
       port: 3306
       targetPort: 3306
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,10 +100,14 @@ spec:
       labels:
         app: keycloak
     spec:
+      volumes:
+        - name: keycloak-volume
+          persistentVolumeClaim: 
+            claimName: keycloak-persistent-storage
       containers:
         - name: keycloak
           image: quay.io/keycloak/keycloak:21.1
-          command: ["start-dev"]
+          args: ["start-dev"]
           ports:
             - containerPort: 8080
           env:
@@ -112,8 +117,10 @@ spec:
               value: "admin"
           volumeMounts:
             - mountPath: /opt/keycloak/data/h2
-              name: keycloak-persistent-storage
+              name: keycloak-volume
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -123,24 +130,40 @@ spec:
     app: keycloak
   ports:
     - protocol: TCP
-      port: 8080
+      port: 9000
       targetPort: 8080
 ---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: keycloak-pv
+spec:
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/data/keycloak"
+
+---
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-persistent-storage
+  name: keycloak-persistent-storage
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 400Mi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: keycloak-persistent-storage
+  name: mysql-persistent-storage
 spec:
   accessModes:
     - ReadWriteOnce
