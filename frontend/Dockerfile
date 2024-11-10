@@ -1,4 +1,4 @@
-# Use the official Node.js image
+# Use a Node.js image
 FROM node:19-slim
 
 # Set the working directory
@@ -12,9 +12,6 @@ RUN npm install
 
 # Copy the rest of your application code
 COPY . .
-
-# Run Prisma migrations
-RUN npx prisma migrate dev --skip-seed
 
 # Expose the application port
 EXPOSE 3000
