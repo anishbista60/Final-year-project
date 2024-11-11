@@ -17,7 +17,7 @@ spec:
           image: anish60/chatbot-frontend:latest
           env:
             - name: DATABASE_URL
-              value: "mysql://root:$(MYSQL_PASSWORD)@mysql:3306/chat_app"
+              value: "mysql://root:$(MYSQL_PASSWORD)@localhost:3306/chat_app"
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -31,10 +31,10 @@ spec:
             ]
           resources:
             limits:
-              memory: "128Mi"
+              memory: "3Gi"
               cpu: "500m"
             requests:
-              memory: "64Mi"
+              memory: "2Gi"
               cpu: "250m"
       containers:
         - name: chat-app
@@ -152,11 +152,11 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
-    storage: 1Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/data"
+    path: "/tmp/mysql"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -168,7 +168,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 800Mi
+      storage: 4Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -238,15 +238,4 @@ spec:
   resources:
     requests:
       storage: 400Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-persistent-storage
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
 

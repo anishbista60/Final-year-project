@@ -1,21 +1,20 @@
-# Use a Node.js image
-FROM node:19-slim
+# Build stage
+FROM node:19-alpine AS builder
 
-# Set the working directory
 WORKDIR /home/node/app
-
-# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of your application code
 COPY . .
 
-# Expose the application port
-EXPOSE 3000
+# Production stage
+FROM node:19-alpine
 
-# Start the application
+WORKDIR /home/node/app
+COPY --from=builder /home/node/app .
+
+# Install only production dependencies
+RUN npm install --omit=dev
+
+EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
